@@ -26,7 +26,7 @@ namespace LoanProperty.Repo
 
             services.AddScoped<IHomeApplicaton, HomeApplicationRepo>();
             services.AddScoped<ILandApplication, LandApplicationRepo>();
-
+            services.AddScoped<ILogger, LoggerRepo>();  
             return services;
         }
 

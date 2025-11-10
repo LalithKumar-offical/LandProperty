@@ -3,8 +3,10 @@ using LandProperty.Contract.DTO;
 using LandProperty.Data.Models.Bids;
 using LandProperty.Data.Models.Roles;
 using LoanProperty.Manager.IService;
-using LoanProperty.Repo.Implementation;
 using LoanProperty.Repo.IRepo;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LoanProperty.Manager.Implementation
 {
@@ -14,16 +16,18 @@ namespace LoanProperty.Manager.Implementation
         private readonly IMapper _mapper;
         private readonly IOwnerHomeDetails _homeRepo;
         private readonly IOwnerLandDetails _landRepo;
-        private readonly IUser _userRepo; // ✅ added user repo
+        private readonly IUser _userRepo;
         private readonly IEmail _emailService;
+        private readonly IService.ILogger _loggerService; // ✅ Added logger service
 
         public BidsService(
             IBid bidRepo,
             IMapper mapper,
             IOwnerHomeDetails homeRepo,
             IOwnerLandDetails landRepo,
-            IUser userRepo, // ✅ injected
-            IEmail emailService)
+            IUser userRepo,
+            IEmail emailService,
+            IService.ILogger loggerService) // ✅ Injected
         {
             _bidRepo = bidRepo;
             _mapper = mapper;
@@ -31,6 +35,7 @@ namespace LoanProperty.Manager.Implementation
             _landRepo = landRepo;
             _userRepo = userRepo;
             _emailService = emailService;
+            _loggerService = loggerService; // ✅ assigned
         }
 
         // ========== ADD OR UPDATE BID (User placing or updating their bid) ==========
@@ -63,6 +68,14 @@ namespace LoanProperty.Manager.Implementation
             bid.PurchaseRequest = false;
 
             await _bidRepo.AddOrUpdateBidAsync(bid);
+
+            // ✅ Log this bid operation
+            await _loggerService.LogBidActionAsync(
+                dto.UserId,
+                "AddOrUpdateBid",
+                bid.BidId,
+                $"User {dto.UserId} placed or updated a bid of {bid.BidAmountByUser:C} for {dto.PropertyType} ID {(dto.PropertyType == PropertyType.Home ? dto.HomeId : dto.LandId)}"
+            );
         }
 
         // ========== OWNER NEGOTIATION OR APPROVAL ==========
@@ -77,6 +90,16 @@ namespace LoanProperty.Manager.Implementation
             existingBid.BidAmountByOwner = dto.BidAmountByOwner;
             existingBid.PurchaseRequest = dto.PurchaseRequest;
             await _bidRepo.UpdateBidAsync(existingBid);
+
+            // ✅ Log this update (Owner action)
+            await _loggerService.LogBidActionAsync(
+                existingBid.UserId,
+                dto.PurchaseRequest ? "ApproveBid" : "CounterBid",
+                existingBid.BidId,
+                dto.PurchaseRequest
+                    ? $"Owner approved bid #{existingBid.BidId} for {dto.PropertyType}"
+                    : $"Owner made a counter offer of {existingBid.BidAmountByOwner:C} for {dto.PropertyType}"
+            );
 
             // ✅ Get the bidder (user) details
             var user = await _userRepo.GetUserByIdAsync(existingBid.UserId);
@@ -103,7 +126,6 @@ namespace LoanProperty.Manager.Implementation
                 }
                 catch (Exception ex)
                 {
-                    // Log or silently handle email errors so action still completes
                     Console.WriteLine($"[Email Warning] Could not send email to {user.UserEmail}: {ex.Message}");
                 }
             }
@@ -112,7 +134,6 @@ namespace LoanProperty.Manager.Implementation
                 Console.WriteLine($"⚠️ Skipped email — User '{user.UserName}' has no registered email address.");
             }
         }
-
 
         // ========== GET BID BY ID ==========
         public async Task<BidResponseDto?> GetBidByIdAsync(int bidId)

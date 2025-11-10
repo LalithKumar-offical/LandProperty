@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.IO;
 using ILandApplication = LoanProperty.Manager.IService.ILandApplication;
+using ILogger = LoanProperty.Manager.IService.ILogger;
 
 namespace LoanProperty.Manager
 {
@@ -34,7 +35,7 @@ namespace LoanProperty.Manager
                 return new HomeOwnerService(repo, mapper, tessDataPath);
             });
             services.AddScoped<IEmail, EmailService>();
-
+            services.AddScoped<ILogger, LoggerService>();    
 
             return services;
         }
