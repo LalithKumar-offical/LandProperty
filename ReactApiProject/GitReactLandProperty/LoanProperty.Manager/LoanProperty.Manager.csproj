@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="15.1.0" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="Tesseract" Version="5.2.0" />
+		
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<ProjectReference Include="..\LandProperty.Contract\LandProperty.Contract.csproj" />
+		<ProjectReference Include="..\LandProperty.Data\LandProperty.Data.csproj" />
+		<ProjectReference Include="..\LoanProperty.Repo\LoanProperty.Repo.csproj" />
+	</ItemGroup>
+<ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

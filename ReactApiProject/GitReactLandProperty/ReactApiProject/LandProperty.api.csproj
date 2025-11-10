@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="TessData\eng.traineddata" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TessData\eng.traineddata">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LandProperty.Contract\LandProperty.Contract.csproj" />
+    <ProjectReference Include="..\LandProperty.Data\LandProperty.Data.csproj" />
+    <ProjectReference Include="..\LandProperty.Infrastructure\LandProperty.Infrastructure.csproj" />
+    <ProjectReference Include="..\LoanProperty.Manager\LoanProperty.Manager.csproj" />
+    <ProjectReference Include="..\LoanProperty.Repo\LoanProperty.Repo.csproj" />
+  </ItemGroup>
+
+
+
+</Project>

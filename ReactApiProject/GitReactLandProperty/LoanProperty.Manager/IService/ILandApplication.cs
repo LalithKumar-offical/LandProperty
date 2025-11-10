@@ -1,0 +1,18 @@
+﻿using LandProperty.Contract.DTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace LoanProperty.Manager.IService
+{
+    public interface ILandApplication
+    {
+        Task AddApplicationAsync(CreateUserLandApplicationDto dto);
+        Task<UserLandApplicationDto?> GetApplicationByIdAsync(int applicationId);
+        Task<IEnumerable<UserLandApplicationDto>> GetApplicationsByUserAsync(Guid userId);
+        Task<IEnumerable<UserLandApplicationDto>> GetApplicationsByLandAsync(int landId);
+        Task<IEnumerable<UserLandApplicationDto>> GetAllApplicationsAsync();
+    }
+}
