@@ -28,7 +28,7 @@ namespace LoanProperty.Repo.Implementation
         }
 
         // ==================== GET ALL LOGS ====================
-        public async Task<IEnumerable<Logger>> GetAllLogsAsync()
+        public async Task<IEnumerable< Logger>> GetAllLogsAsync()
         {
             return await _context.Loggers
                 .OrderByDescending(l => l.ActionDate)
