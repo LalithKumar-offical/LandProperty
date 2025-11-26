@@ -1,6 +1,6 @@
 ﻿using LandProperty.Contract.DTO;
 using LoanProperty.Manager.IService;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LandProperty.api.Controllers
@@ -17,6 +17,7 @@ namespace LandProperty.api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> Apply([FromBody] CreateUserLandApplicationDto dto)
         {
             await _service.AddApplicationAsync(dto);
@@ -24,10 +25,11 @@ namespace LandProperty.api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> GetById(int id)
         {
             var app = await _service.GetApplicationByIdAsync(id);
             return app == null ? NotFound() : Ok(app);
         }
-}
+    }
 }

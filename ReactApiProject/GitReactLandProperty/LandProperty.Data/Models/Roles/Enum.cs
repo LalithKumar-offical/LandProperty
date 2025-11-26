@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LandProperty.Data.Models.Roles
+﻿namespace LandProperty.Data.Models.Roles
 {
     public enum RoleTypes
     {
@@ -12,15 +6,20 @@ namespace LandProperty.Data.Models.Roles
         PropertyOwner,
         User
     }
-    public enum DocumentType { 
+
+    public enum DocumentType
+    {
         Vedio,
         Image,
         Documnet
     }
-    public enum PropertyType { 
+
+    public enum PropertyType
+    {
         Home,
         Land
     }
+
     public enum ApplicationStatus
     {
         Pending,

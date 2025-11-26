@@ -4,7 +4,6 @@ using LandProperty.Data.Models.OwnerHome;
 using LandProperty.Data.Models.Roles;
 using LoanProperty.Manager.IService;
 using LoanProperty.Repo.IRepo;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,15 +18,18 @@ namespace LoanProperty.Manager.Implementation
         private readonly IMapper _mapper;
         private readonly string _tessDataPath;
 
-        // ✅ Updated constructor — now takes string instead of IWebHostEnvironment
         public HomeOwnerService(IOwnerHomeDetails repo, IMapper mapper, string tessDataPath)
         {
             _repo = repo;
             _mapper = mapper;
-            _tessDataPath = tessDataPath; // Path passed from API project
+            _tessDataPath = tessDataPath; 
         }
 
-        // ==================== CRUD ====================
+        public async Task<List<HomeWithOwnerAndDocumentsDto>> GetHomesWithOwnerAndDocumentsAsync()
+        {
+            var homes = await _repo.GetHomesWithOwnerAndDocumentsAsync();
+            return _mapper.Map<List<HomeWithOwnerAndDocumentsDto>>(homes);
+        }
 
         public async Task<IEnumerable<HomeListDto>> GetAllHomesAsync()
         {
@@ -59,14 +61,11 @@ namespace LoanProperty.Manager.Implementation
             if (existing == null)
                 throw new Exception("Home not found");
 
-            // ✅ Map only non-null properties
             _mapper.Map(dto, existing);
 
-            // ✅ Send updated entity back to repo
             await _repo.UpdateHomeAsync(existing);
         }
-
-        // ==================== APPROVAL ====================
+        
 
         public async Task<bool> ApproveHomeAsync(int homeId)
         {
@@ -78,7 +77,6 @@ namespace LoanProperty.Manager.Implementation
             return await _repo.RejectHomeAsync(homeId, reason);
         }
 
-        // ==================== FILE UPLOAD + OCR ====================
 
         public async Task<HomeDocumentsDto> UploadHomeDocumentAsync(int homeId, IFormFile file, DocumentType type)
         {
@@ -110,7 +108,6 @@ namespace LoanProperty.Manager.Implementation
                 if (string.IsNullOrWhiteSpace(fullText))
                     return null;
 
-                // ✅ Extract only what you need
                 string filteredDetails = ExtractRequiredData(fullText);
                 return filteredDetails;
             }
@@ -131,7 +128,6 @@ namespace LoanProperty.Manager.Implementation
             string? zoning = null;
             string? lastTransfer = null;
 
-            // Regex pattern matching for flexible OCR text
             var ownerMatch = Regex.Match(text, @"(?i)Property\s*Owner[:\-]?\s*(.+)", RegexOptions.IgnoreCase);
             if (ownerMatch.Success)
                 owner = ownerMatch.Groups[1].Value.Trim();
@@ -144,7 +140,6 @@ namespace LoanProperty.Manager.Implementation
             if (transferMatch.Success)
                 lastTransfer = transferMatch.Groups[1].Value.Trim();
 
-            // ✅ Build clean formatted string
             var result = new StringBuilder();
             if (!string.IsNullOrEmpty(owner))
                 result.AppendLine($"Owner: {owner}");
@@ -156,7 +151,6 @@ namespace LoanProperty.Manager.Implementation
             return result.Length > 0 ? result.ToString().Trim() : "[No key details found]";
         }
 
-        // ==================== DOCUMENTS ====================
 
         public async Task<IEnumerable<HomeDocumentsDto>> GetDocumentsByHomeIdAsync(int homeId)
         {
@@ -175,12 +169,12 @@ namespace LoanProperty.Manager.Implementation
             await _repo.DeleteDocumentAsync(documentId);
         }
 
-        // ==================== FILTER ====================
-
         public async Task<IEnumerable<HomeListDto>> FilterHomesAsync(bool? approved = null, bool? active = null, Guid? userId = null)
         {
             var homes = await _repo.FilterHomesAsync(approved, active, userId);
             return _mapper.Map<IEnumerable<HomeListDto>>(homes);
         }
+        
+
     }
 }

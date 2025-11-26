@@ -4,9 +4,6 @@ using LandProperty.Data.Models.Bids;
 using LandProperty.Data.Models.Roles;
 using LoanProperty.Manager.IService;
 using LoanProperty.Repo.IRepo;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace LoanProperty.Manager.Implementation
 {
@@ -18,8 +15,7 @@ namespace LoanProperty.Manager.Implementation
         private readonly IOwnerLandDetails _landRepo;
         private readonly IUser _userRepo;
         private readonly IEmail _emailService;
-        private readonly IService.ILogger _loggerService; // ✅ Added logger service
-
+        private readonly IService.ILogger _loggerService; 
         public BidsService(
             IBid bidRepo,
             IMapper mapper,
@@ -27,7 +23,7 @@ namespace LoanProperty.Manager.Implementation
             IOwnerLandDetails landRepo,
             IUser userRepo,
             IEmail emailService,
-            IService.ILogger loggerService) // ✅ Injected
+            IService.ILogger loggerService) 
         {
             _bidRepo = bidRepo;
             _mapper = mapper;
@@ -35,13 +31,11 @@ namespace LoanProperty.Manager.Implementation
             _landRepo = landRepo;
             _userRepo = userRepo;
             _emailService = emailService;
-            _loggerService = loggerService; // ✅ assigned
+            _loggerService = loggerService;
         }
 
-        // ========== ADD OR UPDATE BID (User placing or updating their bid) ==========
         public async Task AddBidAsync(CreateBidDto dto)
         {
-            // ✅ Validation: Ensure property exists and is not owned by the bidder
             if (dto.PropertyType == PropertyType.Home && dto.HomeId.HasValue)
             {
                 var home = await _homeRepo.GetHomeByIdAsync(dto.HomeId.Value);
@@ -63,13 +57,11 @@ namespace LoanProperty.Manager.Implementation
                 throw new InvalidOperationException("Invalid property type or missing property ID.");
             }
 
-            // ✅ Proceed to add or update bid
             var bid = _mapper.Map<Bid>(dto);
             bid.PurchaseRequest = false;
 
             await _bidRepo.AddOrUpdateBidAsync(bid);
 
-            // ✅ Log this bid operation
             await _loggerService.LogBidActionAsync(
                 dto.UserId,
                 "AddOrUpdateBid",
@@ -78,20 +70,16 @@ namespace LoanProperty.Manager.Implementation
             );
         }
 
-        // ========== OWNER NEGOTIATION OR APPROVAL ==========
         public async Task UpdateBidAsync(BidResponseDto dto)
         {
-            // ✅ Get the existing bid
             var existingBid = await _bidRepo.GetBidByIdAsync(dto.BidId);
             if (existingBid == null)
                 throw new InvalidOperationException("Bid not found.");
 
-            // ✅ Update core bid data
             existingBid.BidAmountByOwner = dto.BidAmountByOwner;
             existingBid.PurchaseRequest = dto.PurchaseRequest;
             await _bidRepo.UpdateBidAsync(existingBid);
 
-            // ✅ Log this update (Owner action)
             await _loggerService.LogBidActionAsync(
                 existingBid.UserId,
                 dto.PurchaseRequest ? "ApproveBid" : "CounterBid",
@@ -101,12 +89,10 @@ namespace LoanProperty.Manager.Implementation
                     : $"Owner made a counter offer of {existingBid.BidAmountByOwner:C} for {dto.PropertyType}"
             );
 
-            // ✅ Get the bidder (user) details
             var user = await _userRepo.GetUserByIdAsync(existingBid.UserId);
             if (user == null)
                 throw new InvalidOperationException("User not found for this bid.");
 
-            // ✅ Prepare email subject and body
             string subject = dto.PurchaseRequest
                 ? "Your Bid Has Been Approved!"
                 : "Owner Has Responded to Your Bid";
@@ -117,7 +103,6 @@ namespace LoanProperty.Manager.Implementation
                 : $"<h3>Bid Update</h3><p>The property owner has updated your bid for <strong>{dto.PropertyType}</strong>.</p>" +
                   $"<p>New counter offer: <strong>{dto.BidAmountByOwner:C}</strong></p>";
 
-            // ✅ Safe email sending (does not break if null or misconfigured)
             if (!string.IsNullOrWhiteSpace(user.UserEmail))
             {
                 try
@@ -135,25 +120,29 @@ namespace LoanProperty.Manager.Implementation
             }
         }
 
-        // ========== GET BID BY ID ==========
         public async Task<BidResponseDto?> GetBidByIdAsync(int bidId)
         {
             var bid = await _bidRepo.GetBidByIdAsync(bidId);
+
             return _mapper.Map<BidResponseDto>(bid);
         }
 
-        // ========== GET ALL BIDS BY USER ==========
         public async Task<IEnumerable<BidResponseDto>> GetBidsByUserAsync(Guid userId)
         {
             var bids = await _bidRepo.GetBidsByUserAsync(userId);
             return _mapper.Map<IEnumerable<BidResponseDto>>(bids);
         }
 
-        // ========== GET ALL BIDS BY PROPERTY ==========
+
         public async Task<IEnumerable<BidResponseDto>> GetBidsByPropertyAsync(int? homeId = null, int? landId = null)
         {
             var bids = await _bidRepo.GetBidsByPropertyAsync(homeId, landId);
             return _mapper.Map<IEnumerable<BidResponseDto>>(bids);
+        }
+        public async Task<IEnumerable<OwnerBidsDto>> GetBidsByOwnerAsync(Guid ownerId)
+        {
+            var bids = await _bidRepo.GetBidsByOwnerAsync(ownerId);
+            return _mapper.Map<IEnumerable<OwnerBidsDto>>(bids);
         }
     }
 }

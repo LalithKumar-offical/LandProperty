@@ -1,12 +1,7 @@
 ﻿using LandProperty.Data.Models.OwnerHome;
 using LandProperty.Data.Models.Roles;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LandProperty.Data.Models
 {
@@ -16,10 +11,12 @@ namespace LandProperty.Data.Models
         public int ApplicationId { get; set; }
 
         public Guid UserId { get; set; }
+
         [ForeignKey("UserId")]
         public User? User { get; set; }
 
         public int HomeId { get; set; }
+
         [ForeignKey("HomeId")]
         public OwnerHomeDetails? Home { get; set; }
 
@@ -28,6 +25,6 @@ namespace LandProperty.Data.Models
 
         public ApplicationStatus? Status { get; set; } = ApplicationStatus.Pending;
 
-        public DateTime? PurchasedDate { get; set; }=DateTime.UtcNow;
+        public DateTime? PurchasedDate { get; set; } = DateTime.UtcNow;
     }
 }

@@ -1,17 +1,10 @@
 ﻿using LandProperty.Data.Data;
 using LandProperty.Data.Models;
-using LoanProperty.Repo.IRepo;
 using Microsoft.EntityFrameworkCore;
-using Splat;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoanProperty.Repo.Implementation
 {
-    public class LoggerRepo:IRepo.ILogger
+    public class LoggerRepo : IRepo.ILogger
     {
         private readonly LandPropertyContext _context;
 
@@ -20,22 +13,19 @@ namespace LoanProperty.Repo.Implementation
             _context = context;
         }
 
-        // ==================== ADD LOG ====================
         public async Task AddLogAsync(Logger log)
         {
             await _context.Loggers.AddAsync(log);
             await _context.SaveChangesAsync();
         }
 
-        // ==================== GET ALL LOGS ====================
-        public async Task<IEnumerable< Logger>> GetAllLogsAsync()
+        public async Task<IEnumerable<Logger>> GetAllLogsAsync()
         {
             return await _context.Loggers
-                .OrderByDescending(l => l.ActionDate)
+                .FromSqlRaw("EXEC GetAllLogs")
                 .ToListAsync();
         }
 
-        // ==================== DELETE ALL LOGS ====================
         public async Task DeleteAllLogsAsync()
         {
             var allLogs = await _context.Loggers.ToListAsync();

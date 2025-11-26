@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace LandProperty.Data.Models.Roles
 {
@@ -11,8 +6,8 @@ namespace LandProperty.Data.Models.Roles
     {
         [Key]
         public int RoleId { get; set; }
-        public RoleTypes? RoleTypeNo { get; set; } = RoleTypes.User;
-        public ICollection<User>? Users { get; set; }     
-            
+
+        public RoleTypes? RoleTypeNo { get; set; } = RoleTypes.User;    
+        public ICollection<User>? Users { get; set; }
     }
 }

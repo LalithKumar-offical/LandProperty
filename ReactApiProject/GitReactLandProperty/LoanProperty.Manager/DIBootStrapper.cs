@@ -5,7 +5,6 @@ using LoanProperty.Manager.Mappers;
 using LoanProperty.Repo.IRepo;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.IO;
 using ILandApplication = LoanProperty.Manager.IService.ILandApplication;
 using ILogger = LoanProperty.Manager.IService.ILogger;
 
@@ -23,19 +22,19 @@ namespace LoanProperty.Manager
             services.AddScoped<IToken, TokenService>();
             services.AddScoped<IPassword, PasswordService>();
 
-            // ✅ Register AutoMapper
-            services.AddAutoMapper(cfg => { }, typeof(MappingProfile).Assembly);
+            services.AddAutoMapper(cfg => { }, typeof(MappingProfile));
 
-            // ✅ Register HomeOwnerService with tessdata path passed from API
             services.AddScoped<IHomeOwner>(provider =>
             {
                 var repo = provider.GetRequiredService<IOwnerHomeDetails>();
                 var mapper = provider.GetRequiredService<IMapper>();
-                var tessDataPath = Path.Combine(env.ContentRootPath, "TessData"); // ✅ Correct environment usage
+                var tessDataPath = Path.Combine(env.ContentRootPath, "TessData");
+
                 return new HomeOwnerService(repo, mapper, tessDataPath);
             });
+
             services.AddScoped<IEmail, EmailService>();
-            services.AddScoped<ILogger, LoggerService>();    
+            services.AddScoped<ILogger, LoggerService>();
 
             return services;
         }

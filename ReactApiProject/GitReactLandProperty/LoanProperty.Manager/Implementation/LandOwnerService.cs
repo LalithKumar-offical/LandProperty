@@ -19,9 +19,6 @@ namespace LoanProperty.Manager.Implementation
             _repo = repo;
             _mapper = mapper;
         }
-
-        // ========== CRUD ==========
-
         public async Task<IEnumerable<LandListDto>> GetAllLandsAsync()
         {
             var lands = await _repo.GetAllLandsAsync();
@@ -57,7 +54,6 @@ namespace LoanProperty.Manager.Implementation
             await _repo.DeleteLandAsync(landId);
         }
 
-        // ========== APPROVAL ==========
 
         public async Task<bool> ApproveLandAsync(int landId)
         {
@@ -69,7 +65,6 @@ namespace LoanProperty.Manager.Implementation
             return await _repo.RejectLandAsync(landId, reason);
         }
 
-        // ========== FILE UPLOAD ==========
 
         public async Task<LandDocumentsDto> UploadLandDocumentAsync(int landId, IFormFile file, DocumentType type)
         {
@@ -77,7 +72,6 @@ namespace LoanProperty.Manager.Implementation
             return _mapper.Map<LandDocumentsDto>(saved);
         }
 
-        // ========== DOCUMENTS ==========
 
         public async Task<IEnumerable<LandDocumentsDto>> GetDocumentsByLandIdAsync(int landId)
         {
@@ -96,7 +90,6 @@ namespace LoanProperty.Manager.Implementation
             await _repo.DeleteDocumentAsync(documentId);
         }
 
-        // ========== FILTERS ==========
 
         public async Task<IEnumerable<LandListDto>> GetApprovedLandsAsync()
         {
@@ -127,5 +120,11 @@ namespace LoanProperty.Manager.Implementation
             var lands = await _repo.FilterLandsAsync(approved, active, userId);
             return _mapper.Map<IEnumerable<LandListDto>>(lands);
         }
+        public async Task<List<LandWithOwnerAndDocumentsDto>> GetLandsWithOwnerAndDocumentsAsync()
+        {
+            var lands = await _repo.GetLandsWithOwnerAndDocumentsAsync();
+            return _mapper.Map<List<LandWithOwnerAndDocumentsDto>>(lands);
+        }
+
     }
 }

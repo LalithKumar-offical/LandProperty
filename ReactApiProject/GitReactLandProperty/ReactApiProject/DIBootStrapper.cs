@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
 
 namespace LandProperty.Api
 {
@@ -11,7 +10,6 @@ namespace LandProperty.Api
 
             services.AddEndpointsApiExplorer();
 
-            // ✅ Swagger setup with JWT support
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -21,7 +19,6 @@ namespace LandProperty.Api
                     Description = "API for Land and Property Management System"
                 });
 
-                // ✅ Add JWT Bearer definition for Swagger "Authorize" button
                 var securityScheme = new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -40,7 +37,6 @@ namespace LandProperty.Api
 
                 c.AddSecurityDefinition("Bearer", securityScheme);
 
-                // ✅ Require token for all requests by default
                 var securityRequirement = new OpenApiSecurityRequirement
                 {
                     {
@@ -59,7 +55,6 @@ namespace LandProperty.Api
                 c.AddSecurityRequirement(securityRequirement);
             });
 
-            // ✅ Enable CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
@@ -68,7 +63,6 @@ namespace LandProperty.Api
                           .AllowAnyMethod());
             });
 
-            // ✅ Optional: JSON settings
             services.AddControllers()
                     .AddJsonOptions(options =>
                     {

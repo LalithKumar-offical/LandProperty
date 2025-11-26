@@ -1,11 +1,4 @@
-﻿using LandProperty.Data.Models.Roles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LandProperty.Contract.DTO
+﻿namespace LandProperty.Contract.DTO
 {
     public class UserDto
     {
@@ -13,9 +6,10 @@ namespace LandProperty.Contract.DTO
         public string? UserName { get; set; }
         public string? UserEmail { get; set; }
         public string? UserPhoneNo { get; set; }
-        public decimal UserBalance { get; set; }
+        public decimal? UserBalance { get; set; }
         public string? RoleName { get; set; }
     }
+
     public class RegisterUserDto
     {
         public string? UserName { get; set; }
@@ -24,6 +18,7 @@ namespace LandProperty.Contract.DTO
         public string? UserPassword { get; set; }
         public int RoleId { get; set; }
     }
+
     public class LoginDto
     {
         public string? Email { get; set; }

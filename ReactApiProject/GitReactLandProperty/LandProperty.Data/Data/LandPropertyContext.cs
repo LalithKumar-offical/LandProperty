@@ -1,14 +1,9 @@
-﻿using LandProperty.Data.Models.Roles;
-using LandProperty.Data.Models;
+﻿using LandProperty.Data.Models;
 using LandProperty.Data.Models.Bids;
 using LandProperty.Data.Models.OwnerHome;
 using LandProperty.Data.Models.OwnerLand;
+using LandProperty.Data.Models.Roles;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LandProperty.Data.Data
 {

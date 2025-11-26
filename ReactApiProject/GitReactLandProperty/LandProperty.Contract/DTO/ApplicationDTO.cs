@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LandProperty.Contract.DTO
+﻿namespace LandProperty.Contract.DTO
 {
     public class UserHomeApplicationDto
     {
@@ -24,6 +18,7 @@ namespace LandProperty.Contract.DTO
         public int HomeId { get; set; }
         public decimal OfferedAmount { get; set; }
     }
+
     public class UserLandApplicationDto
     {
         public int ApplicationId { get; set; }
@@ -42,5 +37,4 @@ namespace LandProperty.Contract.DTO
         public int LandId { get; set; }
         public decimal OfferedAmount { get; set; }
     }
-
 }

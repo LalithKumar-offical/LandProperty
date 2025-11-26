@@ -4,11 +4,6 @@ using LandProperty.Data.Models.Roles;
 using LoanProperty.Repo.IRepo;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LoanProperty.Repo.Implementation
 {
@@ -69,9 +64,6 @@ namespace LoanProperty.Repo.Implementation
                 await _context.SaveChangesAsync();
             }
         }
-
-        // ==================== HOME FILTERS ====================
-
         public async Task<IEnumerable<OwnerHomeDetails>> GetApprovedHomesAsync()
         {
             return await _context.OwnerHomeDetails
@@ -128,14 +120,11 @@ namespace LoanProperty.Repo.Implementation
             return true;
         }
 
-        // ==================== DOCUMENTS & FILES ====================
-
         public async Task<HomeDocuments> SaveFileAsync(int homeId, IFormFile file, DocumentType type, string? extractedDetails = null)
         {
             if (file == null || file.Length == 0)
                 throw new ArgumentException("Invalid file upload.");
 
-            // Choose subfolder based on DocumentType
             string folder = type switch
             {
                 DocumentType.Image => "Images",
@@ -150,13 +139,11 @@ namespace LoanProperty.Repo.Implementation
             string fileName = $"{Guid.NewGuid()}_{file.FileName}";
             string fullPath = Path.Combine(folderPath, fileName);
 
-            // Save file to disk
             using (var stream = new FileStream(fullPath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
 
-            // Save record in DB
             var doc = new HomeDocuments
             {
                 HomeId = homeId,
@@ -193,7 +180,7 @@ namespace LoanProperty.Repo.Implementation
             return await _context.HomeDocuments
                 .FirstOrDefaultAsync(d => d.HomeDocumnetsId == documentId);
         }
-             
+
         public async Task AddHomeDocumentAsync(HomeDocuments document)
         {
             await _context.HomeDocuments.AddAsync(document);
@@ -219,8 +206,6 @@ namespace LoanProperty.Repo.Implementation
             }
         }
 
-        // ==================== SMART FILTER ====================
-
         public async Task<IEnumerable<OwnerHomeDetails>> FilterHomesAsync(bool? approved = null, bool? active = null, Guid? userId = null)
         {
             var query = _context.OwnerHomeDetails
@@ -237,6 +222,14 @@ namespace LoanProperty.Repo.Implementation
                 query = query.Where(h => h.UserId == userId.Value);
 
             return await query.ToListAsync();
+        }
+
+        public async Task<List<OwnerHomeDetails>> GetHomesWithOwnerAndDocumentsAsync()
+        {
+            return await _context.OwnerHomeDetails
+                .Include(h => h.HomeDocuments)
+                .Include(h => h.User)
+                .ToListAsync();
         }
     }
 }

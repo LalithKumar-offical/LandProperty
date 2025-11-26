@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using BCrypt.Net;
 using LandProperty.Contract.DTO;
 using LandProperty.Data.Models.Roles;
 using LoanProperty.Manager.IService;
 using LoanProperty.Repo.IRepo;
+using Microsoft.EntityFrameworkCore;
 
 namespace LoanProperty.Manager.Implementation
 {
@@ -34,7 +34,6 @@ namespace LoanProperty.Manager.Implementation
         {
             var user = _mapper.Map<User>(dto);
 
-            // ✅ Hash the password before saving
             user.UserPassword = BCrypt.Net.BCrypt.HashPassword(dto.UserPassword);
 
             var addedUser = await _userRepo.AddSynce(user);
@@ -43,16 +42,42 @@ namespace LoanProperty.Manager.Implementation
 
         public async Task<UserDto> UpdateUserAsync(UserDto dto)
         {
-            var entity = _mapper.Map<User>(dto);
-            var updatedUser = await _userRepo.UpdateSynce(entity);
-            return _mapper.Map<UserDto>(updatedUser);
+            var existing = await _userRepo.GetUserByIdAsync(dto.UserId);
+            if (existing == null)
+                throw new Exception("User not found");
+
+            if (!string.IsNullOrWhiteSpace(dto.UserName))
+                existing.UserName = dto.UserName;
+
+            if (!string.IsNullOrWhiteSpace(dto.UserEmail))
+                existing.UserEmail = dto.UserEmail;
+
+            if (!string.IsNullOrWhiteSpace(dto.UserPhoneNo))
+                existing.UserPhoneNo = dto.UserPhoneNo;
+
+            if (dto.UserBalance.HasValue)
+                existing.UserBalance = dto.UserBalance.Value;
+
+            await _userRepo.SaveChangesAsync();
+
+            return _mapper.Map<UserDto>(existing);
         }
 
         public async Task DeleteUserAsync(Guid id)
         {
             var user = await _userRepo.GetById(id);
-            if (user != null)
+
+            if (user == null)
+                throw new KeyNotFoundException("User not found");
+
+            try
+            {
                 await _userRepo.DeleteSynce(user);
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new InvalidOperationException("User has related data and cannot be deleted.");
+            }
         }
 
         public async Task<IEnumerable<UserDto>> FilterUsersByDateAsync(DateTime? date)
@@ -67,7 +92,6 @@ namespace LoanProperty.Manager.Implementation
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
-        // ✅ Optional: Password verification method (for login)
         public async Task<bool> VerifyPasswordAsync(Guid userId, string plainPassword)
         {
             var user = await _userRepo.GetById(userId);

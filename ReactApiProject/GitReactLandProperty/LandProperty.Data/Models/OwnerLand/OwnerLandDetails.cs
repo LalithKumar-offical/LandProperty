@@ -1,12 +1,7 @@
 ﻿using LandProperty.Data.Models.Bids;
 using LandProperty.Data.Models.Roles;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LandProperty.Data.Models.OwnerLand
 {
@@ -14,6 +9,7 @@ namespace LandProperty.Data.Models.OwnerLand
     {
         [Key]
         public int LandId { get; set; }
+
         [MaxLength(50)]
         public string? LandName { get; set; }
 
@@ -29,8 +25,10 @@ namespace LandProperty.Data.Models.OwnerLand
 
         [MaxLength(20)]
         public string? LandState { get; set; }
-        public bool Status { get; set; } // active or inactive after purchase of home 
-        public bool LandStatusApproved { get; set; } // admin side approval or rejection of property 
+
+        public bool Status { get; set; } // active or inactive after purchase of home
+        public bool LandStatusApproved { get; set; } // admin side approval or rejection of property
+
         [StringLength(100, MinimumLength = 3)]
         public string? RejectedReason { get; set; }
 
@@ -53,8 +51,10 @@ namespace LandProperty.Data.Models.OwnerLand
         public DateTime LandSellDate { get; set; } = DateTime.UtcNow;
         public ICollection<LandDocumnets>? LandDocuments { get; set; }
         public Guid UserId { get; set; }
+
         [ForeignKey("UserId")]
         public User? User { get; set; }
+
         public ICollection<Bid>? Bids { get; set; }
     }
 }

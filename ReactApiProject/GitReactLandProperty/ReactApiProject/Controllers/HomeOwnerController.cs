@@ -2,7 +2,6 @@
 using LandProperty.Data.Models.Roles;
 using LoanProperty.Manager.IService;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using static LandProperty.Contract.DTO.HomeDocumentsDTO;
 
@@ -10,7 +9,7 @@ namespace LandProperty.api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // 🔒 Require authentication globally
+    [Authorize] 
     public class HomeOwnerController : ControllerBase
     {
         private readonly IHomeOwner _homeOwnerService;
@@ -19,16 +18,18 @@ namespace LandProperty.api.Controllers
         {
             _homeOwnerService = homeOwnerService;
         }
-
-        // ================== BASIC CRUD ==================
-
-        // 👀 Everyone (Admin, PropertyOwner, User) can view all homes
+        [HttpGet("full-details")]
+        [Authorize(Roles = "Admin,PropertyOwner,User")]
+        public async Task<IActionResult> GetHomesWithOwnerAndDocs()
+        {
+            var data = await _homeOwnerService.GetHomesWithOwnerAndDocumentsAsync();
+            return Ok(data);
+        }
         [HttpGet]
         [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> GetAll() =>
             Ok(await _homeOwnerService.GetAllHomesAsync());
 
-        // 👀 Everyone can view by ID
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> GetById(int id)
@@ -37,7 +38,6 @@ namespace LandProperty.api.Controllers
             return home == null ? NotFound() : Ok(home);
         }
 
-        // 🏠 PropertyOwner only can add new home listings
         [HttpPost]
         [Authorize(Roles = "PropertyOwner")]
         public async Task<IActionResult> Add([FromBody] CreateHomeDto dto)
@@ -46,7 +46,6 @@ namespace LandProperty.api.Controllers
             return Ok("Home added successfully");
         }
 
-        // ✏️ PropertyOwner only can update their own home details
         [HttpPut]
         [Authorize(Roles = "PropertyOwner")]
         public async Task<IActionResult> Update([FromBody] UpdateHomeDto dto)
@@ -55,9 +54,6 @@ namespace LandProperty.api.Controllers
             return Ok("Home updated successfully");
         }
 
-        // ================== DOCUMENT MANAGEMENT ==================
-
-        // 📤 PropertyOwner uploads, Admin may review
         [HttpPost("upload")]
         [Authorize(Roles = "PropertyOwner,Admin")]
         [Consumes("multipart/form-data")]
@@ -71,7 +67,6 @@ namespace LandProperty.api.Controllers
             return Ok(result);
         }
 
-        // 📄 Everyone can view documents for a property
         [HttpGet("{homeId}/documents")]
         [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> GetDocuments(int homeId)
@@ -80,7 +75,6 @@ namespace LandProperty.api.Controllers
             return Ok(docs);
         }
 
-        // 🔍 Everyone can view documents by type
         [HttpGet("{homeId}/documents/type/{type}")]
         [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> GetDocumentsByType(int homeId, DocumentType type)
@@ -89,7 +83,6 @@ namespace LandProperty.api.Controllers
             return Ok(docs);
         }
 
-        // ❌ Only Admin can delete a document
         [HttpDelete("documents/{documentId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteDocument(int documentId)
@@ -98,9 +91,6 @@ namespace LandProperty.api.Controllers
             return Ok("Document deleted successfully");
         }
 
-        // ================== ADMIN ACTIONS ==================
-
-        // ✅ Only Admin can approve
         [HttpPut("{homeId}/approve")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ApproveHome(int homeId)
@@ -109,7 +99,6 @@ namespace LandProperty.api.Controllers
             return success ? Ok("Home approved successfully") : BadRequest("Approval failed");
         }
 
-        // ❌ Only Admin can reject
         [HttpPut("{homeId}/reject")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> RejectHome(int homeId, [FromQuery] string reason)
@@ -118,9 +107,6 @@ namespace LandProperty.api.Controllers
             return success ? Ok("Home rejected successfully") : BadRequest("Rejection failed");
         }
 
-        // ================== FILTER & STATUS VIEWS ==================
-
-        // 🔍 Everyone can use filter (User sees all, Admin filters approvals)
         [HttpGet("filter")]
         [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> FilterHomes([FromQuery] bool? approved, [FromQuery] bool? active, [FromQuery] Guid? userId)
@@ -129,7 +115,6 @@ namespace LandProperty.api.Controllers
             return Ok(filtered);
         }
 
-        // ✅ Only Admin can view all approved homes
         [HttpGet("approved")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetApprovedHomes()
@@ -138,7 +123,6 @@ namespace LandProperty.api.Controllers
             return Ok(homes);
         }
 
-        // ❌ Only Admin can view rejected homes
         [HttpGet("rejected")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRejectedHomes()
@@ -147,7 +131,6 @@ namespace LandProperty.api.Controllers
             return Ok(homes);
         }
 
-        // 🕓 Pending — only Admin
         [HttpGet("pending")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetPendingHomes()
@@ -157,7 +140,6 @@ namespace LandProperty.api.Controllers
             return Ok(pending);
         }
 
-        // 🏡 Active homes — visible to everyone
         [HttpGet("active")]
         [Authorize(Roles = "Admin,PropertyOwner,User")]
         public async Task<IActionResult> GetActiveHomes()

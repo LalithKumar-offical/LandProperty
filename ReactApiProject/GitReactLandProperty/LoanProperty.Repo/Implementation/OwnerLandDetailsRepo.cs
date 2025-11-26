@@ -4,15 +4,10 @@ using LandProperty.Data.Models.Roles;
 using LoanProperty.Repo.IRepo;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoanProperty.Repo.Implementation
 {
-    public class OwnerLandDetailsRepo:IOwnerLandDetails
+    public class OwnerLandDetailsRepo : IOwnerLandDetails
     {
         private readonly LandPropertyContext _context;
         private readonly string _uploadRoot;
@@ -24,7 +19,6 @@ namespace LoanProperty.Repo.Implementation
             Directory.CreateDirectory(_uploadRoot);
         }
 
-        // ==================== CRUD OPERATIONS ====================
 
         public async Task<IEnumerable<OwnerLandDetails>> GetAllLandsAsync()
         {
@@ -71,8 +65,6 @@ namespace LoanProperty.Repo.Implementation
             }
         }
 
-        // ==================== FILTERS ====================
-
         public async Task<IEnumerable<OwnerLandDetails>> GetApprovedLandsAsync()
         {
             return await _context.OwnerLandDetails
@@ -105,8 +97,6 @@ namespace LoanProperty.Repo.Implementation
                 .ToListAsync();
         }
 
-        // ==================== APPROVAL ====================
-
         public async Task<bool> ApproveLandAsync(int landId)
         {
             var land = await _context.OwnerLandDetails.FindAsync(landId);
@@ -130,8 +120,6 @@ namespace LoanProperty.Repo.Implementation
             await _context.SaveChangesAsync();
             return true;
         }
-
-        // ==================== DOCUMENTS ====================
 
         public async Task<LandDocumnets> SaveFileAsync(int landId, IFormFile file, DocumentType type, string? extractedDetails = null)
         {
@@ -218,8 +206,6 @@ namespace LoanProperty.Repo.Implementation
             }
         }
 
-        // ==================== SMART FILTER ====================
-
         public async Task<IEnumerable<OwnerLandDetails>> FilterLandsAsync(bool? approved = null, bool? active = null, Guid? userId = null)
         {
             var query = _context.OwnerLandDetails
@@ -237,5 +223,13 @@ namespace LoanProperty.Repo.Implementation
 
             return await query.ToListAsync();
         }
+        public async Task<List<OwnerLandDetails>> GetLandsWithOwnerAndDocumentsAsync()
+        {
+            return await _context.OwnerLandDetails
+                .Include(l => l.LandDocuments)
+                .Include(l => l.User)
+                .ToListAsync();
+        }
+
     }
 }

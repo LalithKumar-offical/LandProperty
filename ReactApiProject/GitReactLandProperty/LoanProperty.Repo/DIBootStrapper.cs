@@ -4,11 +4,6 @@ using LoanProperty.Repo.Implementation;
 using LoanProperty.Repo.IRepo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoanProperty.Repo
 {
@@ -26,9 +21,8 @@ namespace LoanProperty.Repo
 
             services.AddScoped<IHomeApplicaton, HomeApplicationRepo>();
             services.AddScoped<ILandApplication, LandApplicationRepo>();
-            services.AddScoped<ILogger, LoggerRepo>();  
+            services.AddScoped<ILogger, LoggerRepo>();
             return services;
         }
-
     }
 }

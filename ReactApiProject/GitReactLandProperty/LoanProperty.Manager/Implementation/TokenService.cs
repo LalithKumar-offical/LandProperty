@@ -1,19 +1,14 @@
 ﻿using LandProperty.Data.Models.Roles;
+using LoanProperty.Manager.IService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using System.IdentityModel.Tokens.Jwt;
-using LoanProperty.Manager.IService;
-
 
 namespace LoanProperty.Manager.Implementation
 {
-    public class TokenService:IToken
+    public class TokenService : IToken
     {
         private readonly SymmetricSecurityKey _key;
         private readonly IConfiguration _config;

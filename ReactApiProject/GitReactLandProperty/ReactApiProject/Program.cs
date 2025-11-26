@@ -3,7 +3,7 @@ using LandProperty.Infrastructure.Middlewares;
 using LoanProperty.Manager;
 using LoanProperty.Repo;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -54,12 +54,12 @@ builder.Services.AddAuthentication(options =>
 // ? Enable CORS (for frontend)
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // your frontend URL
+        policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); // allow sending cookies
+              .AllowCredentials();
     });
 });
 
@@ -78,7 +78,14 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // ? Must be before auth — allow frontend with credentials
-app.UseCors();
+
+app.UseCors("AllowFrontend");
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Uploads")),
+    RequestPath = "/Uploads"
+});
 
 // ? Authentication & Authorization
 app.UseAuthentication();

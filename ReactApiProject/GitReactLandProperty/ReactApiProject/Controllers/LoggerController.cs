@@ -1,5 +1,4 @@
-﻿using LoanProperty.Manager.Implementation;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LandProperty.api.Controllers
@@ -15,11 +14,8 @@ namespace LandProperty.api.Controllers
             _loggerService = loggerService;
         }
 
-        // ==================== GET ALL LOGS ====================
-        /// <summary>
-        /// Get all logs in descending order of date.
-        /// </summary>
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllLogs()
         {
             var logs = await _loggerService.GetAllLogsAsync();
@@ -29,20 +25,16 @@ namespace LandProperty.api.Controllers
             return Ok(logs);
         }
 
-        // ==================== DELETE ALL LOGS ====================
-        /// <summary>
-        /// Delete all logs from the database.
-        /// </summary>
         [HttpDelete("delete-all")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAllLogs()
         {
             await _loggerService.DeleteAllLogsAsync();
             return Ok("✅ All logs deleted successfully.");
         }
 
-        // (Optional) ==================== FILTER BY ACTION ====================
-        // Example: api/logger/filter?action=AddBid
         [HttpGet("filter")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> FilterLogs([FromQuery] string? action = null)
         {
             var logs = await _loggerService.GetAllLogsAsync();

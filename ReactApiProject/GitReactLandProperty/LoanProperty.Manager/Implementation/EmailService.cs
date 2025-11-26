@@ -1,16 +1,11 @@
 ﻿using LoanProperty.Manager.IService;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoanProperty.Manager.Implementation
 {
-    public class EmailService:IEmail
+    public class EmailService : IEmail
     {
         private readonly IConfiguration _config;
 
