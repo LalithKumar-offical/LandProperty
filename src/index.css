@@ -1,0 +1,18 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-image: url('/Real+Esta.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+html {
+  height: 100%;
+}
+
+#root {
+  min-height: 100vh;
+}
